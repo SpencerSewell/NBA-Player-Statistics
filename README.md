@@ -50,8 +50,8 @@ total_length = sum(len(urls) for urls in master_list)
 #dfs = pd.read_html(testurl)
 
 #Gathering Data
-for i in range(0, len(master_list)-1):
-  for j in range(0, len(master_list[i])-1):
+for i in range(0, len(master_list)):
+  for j in range(0, len(master_list[i])):
     print(f'Total Progress: {progress}/{total_length}')
     url2 = master_list[i][j]
     response2 = requests.get(url2)
