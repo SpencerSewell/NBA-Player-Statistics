@@ -7,6 +7,7 @@ import numpy as np
 import requests
 from bs4 import BeautifulSoup
 import lxml
+from io import StringIO
 
 # Variables and Lists setup
 base_url = "https://www.basketball-reference.com"
@@ -41,30 +42,34 @@ for letter in ascii_lowercase:
 
 total_length = sum(len(urls) for urls in master_list)
 
-#Test Case
-#testurl = master_list[0][0]
-#response = requests.get(testurl)
-#soup = BeautifulSoup(response.content, 'html.parser')
-#name_tag = soup.find('h1')
-#player_name = name_tag.get_text(strip=True) if name_tag else "Unknown Player"
-#dfs = pd.read_html(testurl)
-
 #Gathering Data
 for i in range(0, len(master_list)):
   for j in range(0, len(master_list[i])):
-    print(f'Total Progress: {progress}/{total_length}')
-    url2 = master_list[i][j]
-    response2 = requests.get(url2)
-    soup = BeautifulSoup(response2.content, 'html.parser')
-    name_tag = soup.find('h1')
-    player_name = name_tag.get_text(strip=True) if name_tag else "Unknown Player"
-    dfs = pd.read_html(url2)
-    if dfs:
-      player_df = dfs[0]
-      player_df['Player'] = player_name
-      master_data.append(player_df)
-    progress += 1
-    time.sleep(60 / 20)
+      print(f'Total Progress: {progress}/{total_length}')
+      url2 = master_list[i][j]
+      response2 = requests.get(url2)
+      soup = BeautifulSoup(response2.content, 'html.parser')
+      name_tag = soup.find('h1')
+      player_name = name_tag.get_text(strip=True) if name_tag else "Unknown Player"
+
+      # Attempt to find the specific table's div by its ID
+      table_wrapper = soup.find('div', id='all_per_game-playoffs_per_game')
+
+      # Proceed only if the table wrapper is found
+      if table_wrapper:
+          table_html = str(table_wrapper)  # Convert the table wrapper (and its contents) to string
+          table_html_io = StringIO(table_html)  # Wrap the HTML content in a StringIO object
+          dfs = pd.read_html(table_html_io)  # Read the HTML table into a DataFrame
+
+          if dfs:
+              player_df = dfs[0]  # Assuming the table you need is the first one found
+              player_df['Player'] = player_name
+              master_data.append(player_df)
+      else:
+          print(f"No playoff per game stats table found for {player_name}")
+
+      progress += 1
+      time.sleep(60 / 20)
 
 final_dataframe = pd.concat(master_data, ignore_index=True)
 final_dataframe.to_csv('basketball_data.csv', index=False)
