@@ -1,4 +1,6 @@
 # NBA-Player-Statistics
+This project is in collaboration with Drew Wolin for his "Name that Player" game on his website https://drewwolin.com/games/ntp/index.html. I have been tasked with writting a webscraper that gathers data from basketball-reference.com on all of the players career stats. This will be brought into a MySQL database and referenced by his website for a daily game his users can play.
+
 ``` python
 import time
 from string import ascii_lowercase
